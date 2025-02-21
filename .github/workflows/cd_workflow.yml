@@ -8,7 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
+    env:
+      IMAGE_NAME: "superremm/order-service"  # Define el nombre de la imagen aquí
+    
     steps:
       # Step 1: Checkout Code
       - name: Checkout Code
