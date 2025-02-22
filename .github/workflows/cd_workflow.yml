@@ -21,8 +21,10 @@ jobs:
       - name: Build Docker Image
         run: |
           echo "IMAGE_NAME: ${{ env.IMAGE_NAME }}" # Verifica que la variable no está vacía
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}:latest
+          docker build -t superremm/order-service:${{ github.sha }} .
+          docker tag superremm/order-service:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest
+          
+
 
       # Step 3: Push Docker Image to ECR
       # Set up AWS Credentials
