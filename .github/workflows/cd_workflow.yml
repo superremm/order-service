@@ -42,7 +42,7 @@ jobs:
       # Push image to Amazon ECR
       - name: Push to ECR
         run: |
-          docker push  ${{ secrets.ECR_REPOSITORY_URI }}:latest
+          docker push  ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest
 #        env:
 #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
