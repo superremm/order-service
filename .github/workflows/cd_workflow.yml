@@ -21,11 +21,12 @@ jobs:
         uses: actions/checkout@v4
 
       # Step 2: Build Docker Image
-      - name: Build Docker Image
+      - name: Build Docker Image        
         run: |
-          echo "IMAGE_NAME: ${{ env.IMAGE_NAME }}" # Verifica que la variable no está vacía
-          docker build -t superremm/order-service:${{ github.sha }} .
-          docker tag superremm/order-service:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest        
+          echo "IMAGE_NAME: ${{ env.IMAGE_NAME }}"  # Verifica que la variable no está vacía
+          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/${{ env.IMAGE_NAME }}:latest
 
       # Step 3: Push Docker Image to ECR
       # Set up AWS Credentials
@@ -43,7 +44,8 @@ jobs:
       # Push image to Amazon ECR
       - name: Push to ECR
         run: |
-          docker push  ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest
+          docker push ${{ secrets.ECR_REPOSITORY_URI }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ secrets.ECR_REPOSITORY_URI }}/${{ env.IMAGE_NAME }}:latest
 
       # Step 4: Update EKS Deployment
       - name: Update kubeconfig for EKS
