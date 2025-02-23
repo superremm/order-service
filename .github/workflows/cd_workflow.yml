@@ -11,6 +11,9 @@ jobs:
     
     env:
       IMAGE_NAME: "superremm/order-service"  # Define el nombre de la imagen aquí
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }} # Asegúrate de definir esto en secrets
+      DEPLOYMENT_NAME: "order-service"                  # Ajusta según tu despliegue
+      CONTAINER_NAME: "order-service"                  # Ajusta según tu contenedor
     
     steps:
       # Step 1: Checkout Code
@@ -22,9 +25,7 @@ jobs:
         run: |
           echo "IMAGE_NAME: ${{ env.IMAGE_NAME }}" # Verifica que la variable no está vacía
           docker build -t superremm/order-service:${{ github.sha }} .
-          docker tag superremm/order-service:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest
-          
-
+          docker tag superremm/order-service:${{ github.sha }} ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest        
 
       # Step 3: Push Docker Image to ECR
       # Set up AWS Credentials
@@ -43,18 +44,13 @@ jobs:
       - name: Push to ECR
         run: |
           docker push  ${{ secrets.ECR_REPOSITORY_URI }}/superremm/order-service:latest
-#        env:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ secrets.AWS_REGION }}
 
-#      # Step 4: Deploy to AWS ECS
-#      - name: Deploy to AWS ECS
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ecs-task-def.json
-#          service: my-ecs-service
-#          cluster: my-cluster
-#          wait-for-service-stability: true
+      # Step 4: Update EKS Deployment
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
           
-          
+      # Step 9: Desplegar en EKS
+      - name: Deploy to EKS
+        run: |
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{ env.CONTAINER_NAME }}=${{ secrets.ECR_REPOSITORY_URI }}/${{ env.IMAGE_NAME }}:latest
